@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - '**'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -78,6 +79,17 @@ jobs:
     needs: lint-html
     steps:
       - uses: actions/checkout@v3
+
+      - name: Validate Docker secrets
+        run: |
+          if [ -z "${{ secrets.DOCKER_USERNAME }}" ]; then
+            echo "::error::Add repository secret DOCKER_USERNAME (value: draganjovanoski3)"
+            exit 1
+          fi
+          if [ -z "${{ secrets.DOCKER_PASSWORD }}" ]; then
+            echo "::error::Add repository secret DOCKER_PASSWORD (Docker Hub Access Token)"
+            exit 1
+          fi
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
